@@ -109,7 +109,7 @@ partial class Program
 
         var modifiedSaveDescription = UsedMods().Replace(saveDescription, "<UsedMods></UsedMods>");
 
-        using var fileStream = File.Open("exit.whs", FileMode.Create);
+        using var fileStream = File.Open(fileInfo.FullName, FileMode.Create);
 
         fileStream.Write(BitConverter.GetBytes(uint.MaxValue));
         fileStream.Write(BitConverter.GetBytes(modifiedSaveDescription.Length));
