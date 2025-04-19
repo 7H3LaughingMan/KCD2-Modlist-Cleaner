@@ -12,7 +12,7 @@ namespace KCD2;
 
 partial class Program
 {
-    private static readonly NuGet.Versioning.SemanticVersion CurrentVersion = new(1, 0, 2);
+    private static readonly NuGet.Versioning.SemanticVersion CurrentVersion = new(1, 0, 3);
 
     private static readonly VelopackLocator velopackLocator = VelopackLocator.GetDefault(null);
 
