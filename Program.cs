@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
 using Velopack;
 using Velopack.Locators;
+using Velopack.Sources;
 
 namespace KCD2;
 
@@ -26,7 +29,27 @@ partial class Program
                 {
                     Environment.Exit(0);
                 }
-            );
+            )
+            .WithAfterInstallFastCallback(
+                (hook) =>
+                {
+                    var applicationPath = Path.Combine(AppContext.BaseDirectory, "KCD2-Modlist-Cleaner.exe");
+
+                    var shell = Registry.CurrentUser.CreateSubKey(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
+                    shell.SetValue("", "Clean Modlist");
+                    shell.SetValue("Icon", applicationPath);
+
+                    var command = shell.CreateSubKey("command");
+                    command.SetValue("", @$"""{applicationPath}"" ""%1""");
+                }
+            )
+            .WithBeforeUninstallFastCallback(
+                (hook) =>
+                {
+                    Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
+                }
+            )
+            .Run();
 
         Console.WriteLine($"KCD2 Modlist Cleaner v{CurrentVersion}");
         Console.WriteLine();
@@ -36,6 +59,8 @@ partial class Program
 
         Console.Write("Press any key to continue . . . ");
         Console.ReadKey();
+
+        Update();
     }
 
     static void ProccessFile(string path)
@@ -90,5 +115,20 @@ partial class Program
         fileStream.Write(BitConverter.GetBytes(modifiedSaveDescription.Length));
         fileStream.Write(Encoding.UTF8.GetBytes(modifiedSaveDescription));
         fileStream.Write(bytes, 8 + saveDescriptionLength, bytes.Length - 8 - saveDescriptionLength);
+    }
+
+    static void Update()
+    {
+        if (velopackLocator.AppId is null)
+            return;
+
+        var manager = new UpdateManager(new GithubSource("https://github.com/7H3LaughingMan/KCD2-Modlist-Cleaner", null, false));
+
+        var newVersion = manager.CheckForUpdates();
+        if (newVersion is null)
+            return;
+
+        manager.DownloadUpdates(newVersion);
+        manager.ApplyUpdatesAndExit(null);
     }
 }
