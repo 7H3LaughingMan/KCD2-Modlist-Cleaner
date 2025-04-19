@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-04-19
+
+### Changed
+
+- Changed the location of where the registry key is created.
+
 ## [1.0.2] - 2025-04-19
 
 ### Changed
@@ -23,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 Initial Release!
 
-[Unreleased]: https://github.com/7H3LaughingMan/KCD2-Modlist-Cleaner/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/7H3LaughingMan/KCD2-Modlist-Cleaner/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/7H3LaughingMan/KCD2-Modlist-Cleaner/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/7H3LaughingMan/KCD2-Modlist-Cleaner/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/7H3LaughingMan/KCD2-Modlist-Cleaner/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/7H3LaughingMan/KCD2-Modlist-Cleaner/releases/tag/v1.0.0

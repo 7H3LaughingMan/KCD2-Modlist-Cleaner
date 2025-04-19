@@ -48,7 +48,7 @@ partial class Program
     {
         var applicationPath = Path.Combine(AppContext.BaseDirectory, "KCD2-Modlist-Cleaner.exe");
 
-        var shell = Registry.CurrentUser.CreateSubKey(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
+        var shell = Registry.CurrentUser.CreateSubKey(@"Software\Classes\SystemFileAssociations\.whs\shell\KCD2-Modlist-Cleaner");
         shell.SetValue("", "Clean Modlist");
         shell.SetValue("Icon", applicationPath);
 
@@ -61,6 +61,7 @@ partial class Program
     static unsafe void DeleteRegistry(NuGet.Versioning.SemanticVersion _)
     {
         Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
+        Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\SystemFileAssociations\.whs\shell\KCD2-Modlist-Cleaner");
 
         PInvoke.SHChangeNotify(Windows.Win32.UI.Shell.SHCNE_ID.SHCNE_ASSOCCHANGED, Windows.Win32.UI.Shell.SHCNF_FLAGS.SHCNF_IDLIST);
     }
