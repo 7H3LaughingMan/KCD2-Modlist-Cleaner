@@ -28,6 +28,7 @@ partial class Program
             .WithAfterInstallFastCallback(CreateRegistry)
             .WithAfterUpdateFastCallback(CreateRegistry)
             .WithBeforeUninstallFastCallback(DeleteRegistry)
+            .WithBeforeUpdateFastCallback(DeleteRegistry)
             .Run();
 
         Console.WriteLine($"KCD2 Modlist Cleaner v{CurrentVersion}");
