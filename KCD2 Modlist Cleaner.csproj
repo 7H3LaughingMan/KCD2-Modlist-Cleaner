@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Authors>7H3LaughingMan</Authors>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <AssemblyName>KCD2-Modlist-Cleaner</AssemblyName>
+    <RootNamespace>KCD2</RootNamespace>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishAot>true</PublishAot>
+    <PublishDir>bin\Publish</PublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="0.0.1053" />
+  </ItemGroup>
+
+</Project>

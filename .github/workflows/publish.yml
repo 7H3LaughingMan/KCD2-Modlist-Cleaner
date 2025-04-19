@@ -1,0 +1,49 @@
+name: Publish Application
+run-name: ${{ github.ref_name }}
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Get Assembly Version
+        id: get-assembly-version
+        uses: 7H3LaughingMan/get-assembly-version-action@v1.0.0
+
+      - name: Azure CLI Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: .NET Restore
+        run: |
+          dotnet restore
+          dotnet tool restore
+
+      - name: Publish Application
+        run: dotnet publish /p:AssemblyVersion=${{ steps.get-assembly-version.outputs.net-assembly-version }} /p:Version=${{ steps.get-assembly-version.outputs.net-version }}
+
+      - name: Keep a Changelog - Release Notes
+        uses: 7H3LaughingMan/keep-a-changelog-release-notes@v1.0.0
+
+      - name: Create Velopack Release
+        run: |
+          dotnet vpk download github --repoUrl https://github.com/${{ github.repository }}
+          dotnet vpk pack --packId KCD2-Modlist-Cleaner --packVersion ${{ steps.get-assembly-version.outputs.net-version }} --packDir bin\Publish --mainExe KCD2-Modlist-Cleaner.exe --icon icon.ico --shortcuts None --azureTrustedSignFile azureTrustedSignFile.json --releaseNotes RELEASE.md --packAuthors 7H3LaughingMan --packTitle "KCD2 Modlist Cleaner"
+          dotnet vpk upload github --repoUrl https://github.com/${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }} --publish --releaseName "KCD2 Modlist Cleaner v${{ steps.get-assembly-version.outputs.net-version }}" --tag v${{ steps.get-assembly-version.outputs.net-version }}
