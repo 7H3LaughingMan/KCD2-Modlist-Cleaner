@@ -1,18 +1,18 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using Velopack;
 using Velopack.Locators;
 using Velopack.Sources;
+using Windows.Win32;
 
 namespace KCD2;
 
 partial class Program
 {
-    private static readonly NuGet.Versioning.SemanticVersion CurrentVersion = new(1, 0, 0);
+    private static readonly NuGet.Versioning.SemanticVersion CurrentVersion = new(1, 0, 2);
 
     private static readonly VelopackLocator velopackLocator = VelopackLocator.GetDefault(null);
 
@@ -24,31 +24,10 @@ partial class Program
         VelopackApp
             .Build()
             .SetLocator(velopackLocator)
-            .WithFirstRun(
-                (hook) =>
-                {
-                    Environment.Exit(0);
-                }
-            )
-            .WithAfterInstallFastCallback(
-                (hook) =>
-                {
-                    var applicationPath = Path.Combine(AppContext.BaseDirectory, "KCD2-Modlist-Cleaner.exe");
-
-                    var shell = Registry.CurrentUser.CreateSubKey(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
-                    shell.SetValue("", "Clean Modlist");
-                    shell.SetValue("Icon", applicationPath);
-
-                    var command = shell.CreateSubKey("command");
-                    command.SetValue("", @$"""{applicationPath}"" ""%1""");
-                }
-            )
-            .WithBeforeUninstallFastCallback(
-                (hook) =>
-                {
-                    Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
-                }
-            )
+            .WithFirstRun(Exit)
+            .WithAfterInstallFastCallback(CreateRegistry)
+            .WithAfterUpdateFastCallback(CreateRegistry)
+            .WithBeforeUninstallFastCallback(DeleteRegistry)
             .Run();
 
         Console.WriteLine($"KCD2 Modlist Cleaner v{CurrentVersion}");
@@ -61,6 +40,29 @@ partial class Program
         Console.ReadKey();
 
         Update();
+    }
+
+    static void Exit(NuGet.Versioning.SemanticVersion _) => Environment.Exit(0);
+
+    static unsafe void CreateRegistry(NuGet.Versioning.SemanticVersion _)
+    {
+        var applicationPath = Path.Combine(AppContext.BaseDirectory, "KCD2-Modlist-Cleaner.exe");
+
+        var shell = Registry.CurrentUser.CreateSubKey(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
+        shell.SetValue("", "Clean Modlist");
+        shell.SetValue("Icon", applicationPath);
+
+        var command = shell.CreateSubKey("command");
+        command.SetValue("", @$"""{applicationPath}"" ""%1""");
+
+        PInvoke.SHChangeNotify(Windows.Win32.UI.Shell.SHCNE_ID.SHCNE_ASSOCCHANGED, Windows.Win32.UI.Shell.SHCNF_FLAGS.SHCNF_IDLIST);
+    }
+
+    static unsafe void DeleteRegistry(NuGet.Versioning.SemanticVersion _)
+    {
+        Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\.whs\shell\KCD2-Modlist-Cleaner");
+
+        PInvoke.SHChangeNotify(Windows.Win32.UI.Shell.SHCNE_ID.SHCNE_ASSOCCHANGED, Windows.Win32.UI.Shell.SHCNF_FLAGS.SHCNF_IDLIST);
     }
 
     static void ProccessFile(string path)
@@ -117,6 +119,7 @@ partial class Program
         fileStream.Write(bytes, 8 + saveDescriptionLength, bytes.Length - 8 - saveDescriptionLength);
 
         Console.WriteLine($"Cleaned {fileInfo.FullName}");
+        Console.WriteLine();
     }
 
     static void Update()
