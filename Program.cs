@@ -115,6 +115,8 @@ partial class Program
         fileStream.Write(BitConverter.GetBytes(modifiedSaveDescription.Length));
         fileStream.Write(Encoding.UTF8.GetBytes(modifiedSaveDescription));
         fileStream.Write(bytes, 8 + saveDescriptionLength, bytes.Length - 8 - saveDescriptionLength);
+
+        Console.WriteLine($"Cleaned {fileInfo.FullName}");
     }
 
     static void Update()
